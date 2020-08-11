@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import './assets/style.css';
 import quizService from "./quizService";
 import QuestionBox from './components/QuestionBox';
-import Result from './components/Result';
 import Answers from './components/Answers';
 
 const App = () => {
@@ -10,6 +9,10 @@ const App = () => {
   const [score, setScore] = useState(0);
   const [responses, setResponses] = useState(0);
   
+  function refreshPage() {
+    window.location.reload(false);
+  }
+
   const getQuestions = () => {
     quizService().then(question => {
       setBank(question)
@@ -34,14 +37,21 @@ const App = () => {
   return (
     <div className="App">
       <div className="container">
+      <div className="nav">
         <div className="title">QuizApp using ReactHooks</div>
+        {responses !== 5 ? <button onClick={refreshPage} className="reload">Change All Answers</button>: ""}
+        {responses === 5 ? 
+        (score === 5 ? <h1 className="message">You are awesome!!!</h1> : <h1 className="danger-message">You can do better!!We believe in you!!</h1>)
+        : ""}
+        {responses === 5 ? <div><h1 className="score">Score : {score}/5</h1><button className="playBtn" onClick={playAgain}>Play again!</button><h1 className="answer-title">Answers:</h1></div>: ""}
+      </div>
+        
         {bank.length > 0 && responses < 5 && bank.map(({question,answers,correct,questionId}) => (
               <QuestionBox question={question} options={answers} key={questionId} selected={answer => computeAnswer(answer, correct)} />
               )
             )
         }
-        {responses === 5 ? bank.map(({question,correct,questionId,answer}) => (<Answers question={question} correct={correct} key={questionId} selected={answer} />)) : null}
-        {responses === 5 ? (<Result score={score} playAgain={playAgain} />) : null}
+        {responses === 5 ? bank.map(({question,correct,questionId}) => (<Answers question={question} correct={correct} key={questionId} />)) : null}
       </div>
     </div>
   );
